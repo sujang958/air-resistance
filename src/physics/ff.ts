@@ -5,15 +5,8 @@ let start = 0
 let previousTimeStamp = -1
 let done = false
 
-/**
- * px/ms
- */
-const RECT_WIDTH = 20
-const RECT_HEIGHT = RECT_WIDTH * 0.5
-const MAX_BOUNDARY = CANVAS_HEIGHT - RECT_HEIGHT
-
-const G_FORCE = 0.0005
-const MASS = 4
+const G_FORCE = 0.00025
+const MASS = 1
 
 const FORCE = MASS * G_FORCE
 
@@ -26,6 +19,10 @@ const ACCELERATION = FORCE / MASS
 // f = mg (g는 중력 가속도)
 // a = f/m
 // a = mg/m = g
+
+const RECT_WIDTH = MASS * 10
+const RECT_HEIGHT = 19
+const MAX_BOUNDARY = CANVAS_HEIGHT - RECT_HEIGHT
 
 export const FreeFall = (timestamp: number) => {
   if (!start) start = timestamp

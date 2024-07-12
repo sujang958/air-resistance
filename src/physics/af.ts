@@ -5,33 +5,50 @@ let start = 0
 let previousTimeStamp = -1
 let done = false
 
-const MASS = 3
-const FORCE = 0
-const ACCELERATION = FORCE / MASS
-const MOMENTUM = 0.5
 /**
  * px/ms
  */
-const VELOCITY = MOMENTUM / MASS
-
 const RECT_WIDTH = 20
 const RECT_HEIGHT = RECT_WIDTH * 0.5
-const MAX_BOUNDARY = CANVAS_WIDTH - RECT_WIDTH
+const MAX_BOUNDARY = CANVAS_HEIGHT - RECT_HEIGHT
 
-export const UniformLinearMotion = (timestamp: number) => {
+const G_FORCE = 0.00025
+const MASS = 4
+
+const FORCE = MASS * G_FORCE
+
+/**
+ * px/ms^2
+ */
+const ACCELERATION = FORCE / MASS
+
+// f는 가해지는 힘, 즉 무게
+// f = mg (g는 중력 가속도)
+// a = f/m
+// a = mg/m = g
+//  F_d=−1/2 ρ v^2 A C_d {v} 
+
+export const AirFriction = (timestamp: number) => {
   if (!start) start = timestamp
   if (done) return
 
   const elapsed = timestamp - start
+  const VELOCITY = elapsed * ACCELERATION
+  const MOMENTUM = MASS * VELOCITY
 
   if (previousTimeStamp !== timestamp) {
     const count = Math.min(VELOCITY * elapsed, MAX_BOUNDARY)
 
     clear()
-    ctx.fillRect(count, CANVAS_HEIGHT - RECT_HEIGHT, RECT_WIDTH, RECT_HEIGHT)
+    ctx.fillRect(
+      CANVAS_WIDTH / 2 - RECT_WIDTH / 2,
+      count,
+      RECT_WIDTH,
+      RECT_HEIGHT,
+    )
 
     updateInfo([
-      `${FORCE} = ${MASS} * ${ACCELERATION}`,
+      `${FORCE} = ${MASS} * ${G_FORCE}`,
       `Momentum: ${MOMENTUM.toPrecision(4)}`,
       `Velocity: ${VELOCITY.toPrecision(4)}px/ms`,
       `Elapsed: ${elapsed.toPrecision(4)}ms`,
@@ -42,5 +59,5 @@ export const UniformLinearMotion = (timestamp: number) => {
 
   previousTimeStamp = timestamp
 
-  requestAnimationFrame(UniformLinearMotion)
+  requestAnimationFrame(AirFriction)
 }
