@@ -5,56 +5,70 @@ let start = 0
 let previousTimeStamp = -1
 let done = false
 
-/**
- * px/ms
- */
-const RECT_WIDTH = 20
-const RECT_HEIGHT = RECT_WIDTH * 0.5
+type Matter = {
+  mass: number
+  x: number
+}
+
+const MATTERS: Matter[] = [
+  { x: 0, mass: 20 },
+  { x: 100, mass: 5 },
+]
+
+const RECT_HEIGHT = 24
 const MAX_BOUNDARY = CANVAS_HEIGHT - RECT_HEIGHT
 
-const G_FORCE = 0.00025
-const MASS = 4
-
-const FORCE = MASS * G_FORCE
-
-/**
- * px/ms^2
- */
-const ACCELERATION = FORCE / MASS
+const AIR_DENSITY = 4
+const DRAG_COEFFICIENT = 1
 
 // f는 가해지는 힘, 즉 무게
 // f = mg (g는 중력 가속도)
 // a = f/m
 // a = mg/m = g
-//  F_d=−1/2 ρ v^2 A C_d {v} 
+//  F_d=1/2 C_D * A * p * v^2
+// ρ = density of the fluid
+// A = the extent of the face
+// C_d coefficient of drag ()
+const G_FORCE = 0.00003
 
 export const AirFriction = (timestamp: number) => {
   if (!start) start = timestamp
   if (done) return
 
   const elapsed = timestamp - start
-  const VELOCITY = elapsed * ACCELERATION
-  const MOMENTUM = MASS * VELOCITY
 
   if (previousTimeStamp !== timestamp) {
-    const count = Math.min(VELOCITY * elapsed, MAX_BOUNDARY)
-
     clear()
-    ctx.fillRect(
-      CANVAS_WIDTH / 2 - RECT_WIDTH / 2,
-      count,
-      RECT_WIDTH,
-      RECT_HEIGHT,
-    )
 
-    updateInfo([
-      `${FORCE} = ${MASS} * ${G_FORCE}`,
-      `Momentum: ${MOMENTUM.toPrecision(4)}`,
-      `Velocity: ${VELOCITY.toPrecision(4)}px/ms`,
-      `Elapsed: ${elapsed.toPrecision(4)}ms`,
-    ])
+    const ys = MATTERS.map(({ mass: MASS, x }, i) => {
+      const FORCE = MASS * G_FORCE
+      const ACCELERATION = FORCE / MASS
+      const A = 10
+      const VELOCITY = elapsed * ACCELERATION
+      const DRAG = 0.5 * DRAG_COEFFICIENT * A * AIR_DENSITY * VELOCITY ** 2
+      const MOMENTUM = Math.max(0, MASS * VELOCITY - DRAG)
 
-    if (count >= MAX_BOUNDARY) done = true
+      const count = Math.min((MOMENTUM / MASS) * elapsed, MAX_BOUNDARY)
+
+      ctx.fillRect(x, count, MASS * 4, RECT_HEIGHT)
+
+      if (count >= MAX_BOUNDARY) return count
+
+      updateInfo(
+        [
+          `${FORCE} = ${MASS} * ${G_FORCE}`,
+          `Momentum: ${MOMENTUM.toPrecision(4)}`,
+          `Velocity: ${VELOCITY.toPrecision(4)}px/ms`,
+          `Elapsed: ${elapsed.toPrecision(4)}ms`,
+          `Drag: ${DRAG.toPrecision(4)}`,
+        ],
+        i == 0 ? "l" : "r",
+      )
+
+      return count
+    })
+
+    if (ys.filter((v) => v >= MAX_BOUNDARY).length == ys.length) done = true
   }
 
   previousTimeStamp = timestamp

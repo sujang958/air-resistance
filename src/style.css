@@ -24,10 +24,20 @@ body {
   border: 2px solid black;
 }
 
-#info {
+#info-left {
   position: fixed;
   top: 1rem;
   left: 1rem;
+  padding: 0.5rem;
+  background-color: white;
+  border: 1px solid black;
+  line-height: 1.4rem;
+}
+
+#info-right {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
   padding: 0.5rem;
   background-color: white;
   border: 1px solid black;
